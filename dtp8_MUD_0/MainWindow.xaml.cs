@@ -16,47 +16,12 @@ using System.Windows.Shapes;
 
 namespace dtp8_MUD_0
 {
-    class Room
-    {
-        // Constants:
-        public const int North = 0;
-        public const int East = 1;
-        public const int South = 2;
-        public const int West = 3;
-        public const int NoDoor = -1;
-
-        // Object attributes:
-        public int number;
-        public string roomname = "";
-        public string story = "";
-        public string imageFile = "";
-        public int[] adjacent = new int[4]; // adjacent[Room.North] etc.
-        public Room(int num, string name)
-        {
-            number = num; roomname = name;
-        }
-        public void SetStory(string theStory)
-        {
-            story = theStory;
-        }
-        public void SetImage(string theImage)
-        {
-            imageFile = theImage;
-        }
-        public void SetDirections(int N, int E, int S, int W)
-        {
-            adjacent[North] = N; adjacent[East] = E; adjacent[South] = S; adjacent[West] = W;
-        }
-        public int GetNorth() => adjacent[North];
-        public int GetEast() => adjacent[East];
-        public int GetSouth() => adjacent[South];
-        public int GetWest() => adjacent[West];
-    }
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        //TBD: Lista istället för array
         Room[] labyrinth = new Room[100];
         int currentRoom;
         public MainWindow()
@@ -64,6 +29,8 @@ namespace dtp8_MUD_0
             InitializeComponent();
 
             // Init Rooms here:
+            //TODO: Ett menyrum vartifrån man kan ladda rumkonfigurationer och sparade spel eller starta nytt spel
+            //TBD: Lägg rummen som initieras i separat fil.
             Room R;
             R = new Room(0, "Startrummet");
             R.SetStory("Du står i ett rum med rött tegel. Väggarna fladdrar i facklornas sken. Du ser en hög med tyg nere till vänster. ");
@@ -83,19 +50,22 @@ namespace dtp8_MUD_0
 
         private void ApplicationKeyPress(object sender, KeyEventArgs e)
         {
+            //TODO: Gör KeyPressDisplay till en debug-option vilken skall gå att stänga av från menyrum eller med tangenttryckning.
             string output = "Key pressed: ";
             output += e.Key.ToString();
             // output += ", ";
             // output += AppDomain.CurrentDomain.BaseDirectory;
             KeyPressDisplay.Text = output;
-
+            
+            //NYI: Länka majoriteten av tangentkommandon till DoCommand(e.Key) i rum eller DoCommand(e.Key) hos player. Globala behålls här.
+            //TBD: Byt till switch-case träd för att fånga flera tangenter till samma metod.
             if(e.Key == Key.Escape)
             {
                 System.Windows.Application.Current.Shutdown();
             }
             else if(e.Key == Key.Up)
             {
-                currentRoom = labyrinth[currentRoom].GetNorth();
+                 currentRoom = labyrinth[currentRoom].GetNorth();
                 DisplayCurrentRoom();
             }
         }
@@ -111,6 +81,7 @@ namespace dtp8_MUD_0
             }
             string text = $"Du befinner dig i {R.roomname}. ";
             text += R.story+" ";
+            //TBD: Ändra till att visa möjliga dörrar genom att loopa genom rummets lista
             if (R.GetNorth() != Room.NoDoor) text += "Det finns en gång norrut. ";
             if (R.GetEast() != Room.NoDoor) text += "Det finns en gång österut. ";
             if (R.GetSouth() != Room.NoDoor) text += "Det finns en gång söderut. ";
