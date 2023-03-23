@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace dtp8_MUD_0
 {
@@ -42,9 +43,25 @@ namespace dtp8_MUD_0
             adjacent[North] = N; adjacent[East] = E; adjacent[South] = S; adjacent[West] = W;
         }
         //NYI: Metoder för att byta rum med dörrar.
+        public int Move(Key k)
+        {
+            switch(k)
+            {
+                case Key.Left:
+                    return adjacent[West];
+                case Key.Right:
+                    return adjacent[East];
+                case Key.Up:
+                    return adjacent[North];
+                case Key.Down:
+                    return adjacent[South];
+            }
+            return number;
+        }
         public int GetNorth() => adjacent[North];
         public int GetEast() => adjacent[East];
         public int GetSouth() => adjacent[South];
         public int GetWest() => adjacent[West];
     }
+
 }
