@@ -7,7 +7,44 @@ using System.Windows.Input;
 
 namespace dtp8_MUD_0
 {
-    //NYI: class Door { var room1, room2; var locked_from_Room1, locked_from_room2, key, string lockedtext1, locked_text2
+    internal class Player
+    {
+        public string name = "Mario";
+        public List<string> keys = new();
+    }
+    internal class Door
+    {
+        public int id;
+        Room[] room = new Room[2];
+        string key;
+        bool open;
+        public Door(int id, Room roomA, Room roomB, string key = "", bool open = true)
+        {
+            this.id = id;
+            room[0] = roomA;
+            room[1] = roomB;
+            this.key = key;
+            this.open = open;
+        }
+        public int MoveFrom(Room R)
+        //Call using current room as parameter in order to move through door.
+        {
+            if(!open) return -1;
+            if(open)
+            {
+                if (room[0] == R) return room[1].number;
+                if (room[1] == R) return room[0].number;
+            }
+            return -2;
+        }
+        public string Unlock(Player creature)
+        {
+            if (open) return "Dörren är inte låst.";
+            if(!creature.keys.Contains(key)) return "Du behöver en " + key + ".";
+            open = true;
+            return "Du låser upp dörren med en " + key + "!";
+        }
+    }
     internal class Room
     {
         //TODO: Make list of exits instead, default setting up n/w/e/s. Each exit is a ref to a door.
@@ -26,6 +63,7 @@ namespace dtp8_MUD_0
         public string story = "";
         public string imageFile = "";
         public int[] adjacent = new int[4]; // adjacent[Room.North] etc.
+        public List<string> keys = new();
         public Room(int num, string name)
         {
             number = num; roomname = name;
@@ -56,7 +94,7 @@ namespace dtp8_MUD_0
                 case Key.Down:
                     return adjacent[South];
             }
-            return number;
+            return -1;
         }
         public int GetNorth() => adjacent[North];
         public int GetEast() => adjacent[East];

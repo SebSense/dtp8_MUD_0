@@ -25,8 +25,10 @@ namespace dtp8_MUD_0
         //TBD: Gör detta till en klass som lagrar globala variablar.
         //TODO: Bryt ut till ett spara fil format och gör det möjligt att ladda olika moduler och sparade spel från filer.
         static List<Room> currentMap = new();
-        static int[] findRoom = new int[1000000];
+        static List<Door> doors = new();
+        static int[] findByID = new int[1000000];
         static Room currentRoom = new Room(-1, "placeholder");
+        static Player player = new();
         public MainWindow()
         {
             InitializeComponent();
@@ -35,41 +37,79 @@ namespace dtp8_MUD_0
             //TODO: Ett menyrum vartifrån man kan ladda rumkonfigurationer och sparade spel eller starta nytt spel
             //TBD: Lägg rummen som initieras i separat fil.
             Room R;
+            Door D;
             R = new Room(0, "Startrummet");
             R.SetStory("Du står i ett rum med rött tegel. Väggarna fladdrar i facklornas sken. Du ser en hög med tyg nere till vänster. ");
             R.SetImage("ingang-stangd.png");
-            R.SetDirections(N: 500500, E: Room.NoDoor, S: Room.NoDoor, W: Room.NoDoor);
+            R.SetDirections(N: 5, E: Room.NoDoor, S: Room.NoDoor, W: Room.NoDoor);
             currentMap.Add(R);
-            findRoom[R.number] = currentMap.Count - 1;
+            findByID[R.number] = currentMap.Count - 1;
 
             R = new Room(500500, "Korsvägen");
             R.SetStory("Du står i korsväg. Det går gångar i alla riktningar. ");
             R.SetImage("vagskal.png");
-            R.SetDirections(N: 500501, E: 501500, S: 0, W: 499500);
+            R.SetDirections(N: 500505, E: 505500, S: 5, W: 495500);
             currentMap.Add(R);
-            findRoom[R.number] = currentMap.Count - 1;
+            findByID[R.number] = currentMap.Count - 1;
 
-            R = new Room(499500, "Baren");
-            R.SetStory("Du står i en bar. Inte tid för detta nu.. ");
-            R.SetImage("vagskal.png");
-            R.SetDirections(N: Room.NoDoor, E: 500500, S: Room.NoDoor, W: Room.NoDoor);
+            D = new Door(5, currentMap[findByID[0]], currentMap[findByID[500500]]);
+            doors.Add(D);
+            findByID[D.id] = doors.Count - 1;
+
+            R = new Room(490500, "Bron");
+            R.SetStory("Du står vid avsatsen till en bro... ");
+            R.SetImage("bro.png");
+            R.SetDirections(N: 490505, E: 495500, S: Room.NoDoor, W: Room.NoDoor);
             currentMap.Add(R);
-            findRoom[R.number] = currentMap.Count - 1;
+            findByID[R.number] = currentMap.Count - 1;
 
-            R = new Room(500501, "Korsvägen");
-            R.SetStory("Du står i en annan korsväg. Det går gångar i alla riktningar. ");
-            R.SetImage("vagskal.png");
-            R.SetDirections(N: 500501, E: 499501, S: 500500, W: 501501);
+            D = new Door(495500, currentMap[findByID[490500]], currentMap[findByID[500500]]);
+            doors.Add(D);
+            findByID[D.id] = doors.Count - 1;
+
+            R = new Room(500510, "Skattkammaren");
+            R.SetStory("Du står i en skattkammare. ");
+            R.SetImage("kista.png");
+            R.SetDirections(N: Room.NoDoor, E: Room.NoDoor, S: 500505, W: 495510);
+            R.keys.Add("röd nyckel");
             currentMap.Add(R);
-            findRoom[R.number] = currentMap.Count - 1;
+            findByID[R.number] = currentMap.Count - 1;
 
-            R = new Room(501500, "Gränden");
+            D = new Door(500505, currentMap[findByID[500510]], currentMap[findByID[500500]], "röd nyckel", false);
+            doors.Add(D);
+            findByID[D.id] = doors.Count - 1;
+
+            R = new Room(510500, "Gränden");
             R.SetStory("Du står i en gränd.");
-            R.SetImage("vagskal.png");
-            R.SetDirections(N: Room.NoDoor, E: Room.NoDoor, S: Room.NoDoor, W: 500500);
+            R.SetImage("galler.png");
+            R.keys.Add("silvernyckel");
+            R.SetDirections(N: Room.NoDoor, E: Room.NoDoor, S: Room.NoDoor, W: 505500);
             currentMap.Add(R);
-            findRoom[R.number] = currentMap.Count - 1;
+            findByID[R.number] = currentMap.Count - 1;
 
+            D = new Door(505500, currentMap[findByID[510500]], currentMap[findByID[500500]]);
+            doors.Add(D);
+            findByID[D.id] = doors.Count - 1;
+
+            R = new Room(490510, "Trevägskorset");
+            R.SetStory("Du står i ett trevägskors.");
+            R.SetImage("vagskal.png");
+            R.SetDirections(N: 490515, E: 495510, S: 490505, W: Room.NoDoor);
+
+            currentMap.Add(R);
+            findByID[R.number] = currentMap.Count - 1;
+
+            D = new Door(490515, currentMap[findByID[490510]], currentMap[findByID[490520]], "guldnyckel", false);
+            doors.Add(D);
+            findByID[D.id] = doors.Count - 1;
+
+            D = new Door(495510, currentMap[findByID[490510]], currentMap[findByID[500510]], "silvernyckel", false);
+            doors.Add(D);
+            findByID[D.id] = doors.Count - 1;
+
+            D = new Door(490505, currentMap[findByID[490500]], currentMap[findByID[490510]]);
+            doors.Add(D);
+            findByID[D.id] = doors.Count - 1;
 
             ChangeRoom(0);
             DisplayCurrentRoom();
@@ -88,33 +128,99 @@ namespace dtp8_MUD_0
             //TBD: Byt till switch-case träd för att fånga flera tangenter till samma metod.
             if (e.Key == Key.Escape)
             {
-              //  System.Windows.Application.Current.Shutdown();
+                System.Windows.Application.Current.Shutdown();
             }
             else if (e.Key == Key.Up || e.Key == Key.Left || e.Key == Key.Right || e.Key == Key.Down)
             {
-                ChangeRoom(currentRoom.Move(e.Key));
                 DisplayCurrentRoom();
+                try
+                {
+                    int doorID = currentRoom.Move(e.Key);
+                    Door D = doors[findByID[doorID]];
+                    int newRoomID = D.MoveFrom(currentRoom);
+                    if (newRoomID == -1)
+                    {
+                        RoomText.Text = "Dörren är låst. ";
+                    }
+                    else 
+                    { 
+                        ChangeRoom(newRoomID);
+                        DisplayCurrentRoom();
+                    }
+                }
+                catch (Exception ex) { RoomText.Text = "Du gick in i en vägg. "; }
+            }
+            else if (e.Key == Key.NumPad0 || e.Key == Key.D0)
+            {
+                ChangeRoom(0);
+            }
+            else if (e.Key == Key.L)
+            {
+                RoomText.Text = "Du letar efter nycklar...\n";
+                if (currentRoom.keys.Any())
+                {
+                    while (currentRoom.keys.Any())
+                    {
+                        RoomText.Text += "Du hittar en " + currentRoom.keys.Last() + "! Du fäster nyckeln i din nyckelknippa.\n";
+                        player.keys.Add(currentRoom.keys.Last());
+                        currentRoom.keys.Remove(currentRoom.keys.Last());
+                    }
+                }
+                else RoomText.Text += "Du hittar ingen nyckel!";
+               // Console.ReadKey(true);
+               // DisplayCurrentRoom();
+            }
+            else if (e.Key == Key.N)
+            {
+                RoomText.Text = "";
+                string[] riktningar = { "norr", "öster", "söder", "väster" };
+                for(int i = 0; i < 4; i++) 
+                {
+                    try
+                    {
+                        int doorID = currentRoom.adjacent[i];
+                        Door D = doors[findByID[doorID]];
+                        RoomText.Text += "Du försöker låsa upp dörren till " + riktningar[i] + ". " + D.Unlock(player) + "\n";
+                    }
+                    catch { }
+                }
+            }
+            else if (e.Key == Key.R)
+            {
+                DisplayCurrentRoom();
+            }
+            else if (e.Key == Key.S)
+            {
+                RoomText.Text = "Du är " + player.name + ". Du är på äventyr i labyrinten.";
+                if (player.keys.Any())
+                {
+                    RoomText.Text += "\nI din nyckelknippa har du en " + player.keys[0];
+                    for (int i = 1; i < player.keys.Count - 1; i++)
+                        RoomText.Text += ", en " + player.keys[i];
+                    if (player.keys.Count > 1) RoomText.Text += " och en " + player.keys.Last();
+                    RoomText.Text += ".";
+                }
+                else RoomText.Text += "\nDu har inga nycklar i din nyckelknippa.";
             }
         }
         private void DisplayCurrentRoom()
         {
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             Room R = currentRoom;
-            string bitmapFileName = $"{baseDir}/{R.imageFile}";
+            string bitmapFileName = $"./MJU23v-bilder/{R.imageFile}";
             if (File.Exists(bitmapFileName))
             {
                 Uri uri = new Uri(bitmapFileName, UriKind.RelativeOrAbsolute);
                 RoomImage.Source = BitmapFrame.Create(uri);
             }
-            string text = $"Du befinner dig i {R.roomname}. ";
-            text += R.story+" ";
+            string text = R.story+" ";
             //TBD: Ändra till att visa möjliga dörrar genom att loopa genom rummets lista
-            if (R.GetNorth() != Room.NoDoor) text += "Det finns en gång norrut. ";
-            if (R.GetEast() != Room.NoDoor) text += "Det finns en gång österut. ";
-            if (R.GetSouth() != Room.NoDoor) text += "Det finns en gång söderut. ";
-            if (R.GetWest() != Room.NoDoor) text += "Det finns en gång västerut. ";
+            text += "\nDu ser utgångar åt ";
+            if (R.GetNorth() != Room.NoDoor) text += "norr ";
+            if (R.GetEast() != Room.NoDoor) text += "öster ";
+            if (R.GetSouth() != Room.NoDoor) text += "söder ";
+            if (R.GetWest() != Room.NoDoor) text += "väster ";
             RoomText.Text = text;
-
+            TitleText.Text = R.roomname;
             /* Andra texter som man kan sätta:
              * KeyAlt1.Text = "upp      gå norrut"; 
              * KeyAlt2.Text = "vänster  gå västerut"; 
@@ -123,8 +229,7 @@ namespace dtp8_MUD_0
         }
         static void ChangeRoom(int room)
         {
-            try { currentRoom = currentMap[findRoom[room]]; }
-            catch (Exception e) { Console.WriteLine("Change room error: " + e.Message); }
+            currentRoom = currentMap[findByID[room]];
         }
     }
 }
